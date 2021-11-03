@@ -27,3 +27,14 @@ project(
                 'cpp_std=c++11',
         ],
 )
+
+
+p1_sources = files(
+	'p1/p1.cc',
+)
+
+
+executable(
+	'p1',
+	sources : p1_sources,
+)
