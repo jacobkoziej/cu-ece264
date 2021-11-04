@@ -51,12 +51,12 @@ public:
 template<typename T>
 inline std::size_t sll<T>::append(T t)
 {
-	struct node *n = new struct node;
+	struct node *tmp = new struct node;
 
-	n->data = t;
-	n->next = nullptr;
+	tmp->data = t;
+	tmp->next = nullptr;
 
-	tail = (tail) ? tail->next = n : head = n;
+	tail = (tail) ? tail->next = tmp : head = tmp;
 	return ++nodes;
 }
 
@@ -76,12 +76,12 @@ inline void sll<T>::clear(void)
 template<typename T>
 inline std::size_t sll<T>::prepend(T t)
 {
-	struct node *n = new struct node;
+	struct node *tmp = new struct node;
 
-	n->data = t;
-	n->next = head;
+	tmp->data = t;
+	tmp->next = head;
 
-	head = (tail) ? n : tail = n;
+	head = (tail) ? tmp : tail = tmp;
 	return ++nodes;
 }
 
