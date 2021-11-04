@@ -41,6 +41,7 @@ private:
 public:
 	inline ~sll(void);
 
+	inline std::size_t append(T t);
 	inline std::size_t prepend(T t);
 };
 
@@ -56,6 +57,18 @@ inline sll<T>::~sll(void)
 	}
 }
 
+
+template<typename T>
+inline std::size_t sll<T>::append(T t)
+{
+	struct node *n = new struct node;
+
+	n->data = t;
+	n->next = nullptr;
+
+	tail = (tail) ? tail->next = n : head = n;
+	return ++nodes;
+}
 
 template<typename T>
 inline std::size_t sll<T>::prepend(T t)
