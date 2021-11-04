@@ -44,6 +44,7 @@ public:
 
 	inline std::size_t append(T t);
 	inline void clear(void);
+	std::size_t del(std::size_t n);
 	T get(std::size_t n);
 	inline std::size_t prepend(T t);
 	inline std::size_t size(void) const { return nodes; }
@@ -73,6 +74,42 @@ inline void sll<T>::clear(void)
 	}
 	tail = nullptr;
 	nodes = 0;
+}
+
+template<typename T>
+std::size_t sll<T>::del(std::size_t n)
+{
+	if (!nodes) throw std::out_of_range("empty sll");
+	if (n > nodes - 1) throw std::out_of_range("invalid index");
+
+
+	struct node *prv, *tmp = head;
+
+	if (!n) {
+		// special case where
+		// we remove the head
+		head = tmp->next;
+	} else {
+		while (n-- && tmp->next) {
+			prv = tmp;
+			tmp = tmp->next;
+		}
+		prv->next = tmp->next;
+
+		// we don't want a dangling tail
+		// if we're removing the last node
+		if (tmp == tail) tail = prv;
+	}
+
+	delete tmp;
+
+	// when there are <= 1 nodes, head and tail point to the same
+	// thing: either head or nullptr
+	if (--nodes <= 1) {
+		tail = head;
+	}
+
+	return nodes;
 }
 
 template<typename T>
