@@ -39,23 +39,12 @@ private:
 
 
 public:
-	inline ~sll(void);
+	inline ~sll(void) { clear(); }
 
 	inline std::size_t append(T t);
+	inline void clear(void);
 	inline std::size_t prepend(T t);
 };
-
-
-template<typename T>
-inline sll<T>::~sll(void)
-{
-	struct node *tmp;
-	while (head) {
-		tmp  = head;
-		head = tmp->next;
-		delete tmp;
-	}
-}
 
 
 template<typename T>
@@ -68,6 +57,18 @@ inline std::size_t sll<T>::append(T t)
 
 	tail = (tail) ? tail->next = n : head = n;
 	return ++nodes;
+}
+
+template<typename T>
+inline void sll<T>::clear(void)
+{
+	struct node *tmp;
+	while (head) {
+		tmp  = head;
+		head = tmp->next;
+		delete tmp;
+	}
+	nodes = 0;
 }
 
 template<typename T>
