@@ -20,6 +20,7 @@
 #define ECE264_P1_SLL_H_
 
 #include <cstddef>
+#include <exception>
 
 
 namespace sable {
