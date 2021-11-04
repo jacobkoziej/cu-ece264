@@ -69,6 +69,7 @@ inline void sll<T>::clear(void)
 		head = tmp->next;
 		delete tmp;
 	}
+	tail = nullptr;
 	nodes = 0;
 }
 
