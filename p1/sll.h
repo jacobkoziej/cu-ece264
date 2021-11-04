@@ -36,7 +36,23 @@ private:
 	struct node *tail = nullptr;
 
 	std::size_t nodes = 0;
+
+
+public:
+	inline ~sll(void);
 };
+
+
+template<typename T>
+inline sll<T>::~sll(void)
+{
+	struct node *tmp;
+	while (head) {
+		tmp  = head;
+		head = tmp->next;
+		delete tmp;
+	}
+}
 
 }
 
