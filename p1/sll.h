@@ -43,6 +43,7 @@ public:
 
 	inline std::size_t append(T t);
 	inline void clear(void);
+	T get(std::size_t n);
 	inline std::size_t prepend(T t);
 	inline std::size_t size(void) const { return nodes; }
 };
@@ -71,6 +72,19 @@ inline void sll<T>::clear(void)
 	}
 	tail = nullptr;
 	nodes = 0;
+}
+
+template<typename T>
+T sll<T>::get(std::size_t n)
+{
+	if (!nodes) throw std::out_of_range("empty sll");
+	if (n > nodes - 1) throw std::out_of_range("invalid index");
+
+
+	struct node *tmp = head;
+	while (n--) tmp = tmp->next;
+
+	return tmp->data;
 }
 
 template<typename T>
