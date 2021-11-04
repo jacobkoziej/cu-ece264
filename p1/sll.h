@@ -44,6 +44,7 @@ public:
 	inline std::size_t append(T t);
 	inline void clear(void);
 	inline std::size_t prepend(T t);
+	inline std::size_t size(void) const { return nodes; }
 };
 
 
