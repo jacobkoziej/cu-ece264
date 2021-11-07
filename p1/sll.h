@@ -33,20 +33,24 @@ private:
 		struct node *next;
 	};
 
+
+protected:
+
 	struct node *head = nullptr;
 	struct node *tail = nullptr;
 
 	std::size_t nodes = 0;
 
+	inline std::size_t append(T t);
+	inline std::size_t prepend(T t);
+
 
 public:
 	inline ~sll(void) { clear(); }
 
-	inline std::size_t append(T t);
 	inline void clear(void);
 	std::size_t del(std::size_t n);
 	T get(std::size_t n);
-	inline std::size_t prepend(T t);
 	inline std::size_t size(void) const { return nodes; }
 };
 
