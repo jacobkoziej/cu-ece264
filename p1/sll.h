@@ -54,6 +54,13 @@ public:
 	inline std::size_t size(void) const { return nodes; }
 };
 
+template<typename T>
+class stack : public sll<T> {
+public:
+	virtual inline T pop(void) { return this->rm_head(); }
+	virtual inline std::size_t push(T t) { return this->prepend(t); }
+};
+
 
 template<typename T>
 inline sll<T>::~sll(void)
