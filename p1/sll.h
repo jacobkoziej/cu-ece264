@@ -43,7 +43,7 @@ protected:
 
 	inline std::size_t append(T t);
 	inline std::size_t prepend(T t);
-	T rm_head(void);
+	inline T rm_head(void);
 
 
 public:
@@ -91,7 +91,7 @@ inline std::size_t sll<T>::prepend(T t)
 }
 
 template<typename T>
-T sll<T>::rm_head(void)
+inline T sll<T>::rm_head(void)
 {
 	if (!head) throw std::out_of_range("empty sll");
 
