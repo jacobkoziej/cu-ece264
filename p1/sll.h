@@ -46,14 +46,26 @@ protected:
 
 
 public:
-	inline ~sll(void) { clear(); }
+	inline ~sll(void);
 
-	inline void clear(void);
 	std::size_t del(std::size_t n);
 	T get(std::size_t n);
 	inline std::size_t size(void) const { return nodes; }
 };
 
+
+template<typename T>
+inline sll<T>::~sll(void)
+{
+	struct node *tmp;
+	while (head) {
+		tmp  = head;
+		head = tmp->next;
+		delete tmp;
+	}
+	tail = nullptr;
+	nodes = 0;
+}
 
 template<typename T>
 inline std::size_t sll<T>::append(T t)
@@ -65,19 +77,6 @@ inline std::size_t sll<T>::append(T t)
 
 	tail = (tail) ? tail->next = tmp : head = tmp;
 	return ++nodes;
-}
-
-template<typename T>
-inline void sll<T>::clear(void)
-{
-	struct node *tmp;
-	while (head) {
-		tmp  = head;
-		head = tmp->next;
-		delete tmp;
-	}
-	tail = nullptr;
-	nodes = 0;
 }
 
 template<typename T>
