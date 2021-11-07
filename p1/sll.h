@@ -47,7 +47,7 @@ protected:
 
 
 public:
-	inline ~sll(void);
+	virtual inline ~sll(void);
 
 	virtual inline T pop(void) = 0;
 	virtual inline std::size_t push(T t) = 0;
