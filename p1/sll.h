@@ -49,6 +49,8 @@ protected:
 public:
 	inline ~sll(void);
 
+	virtual inline T pop(void) = 0;
+	virtual inline std::size_t push(T t) = 0;
 	inline std::size_t size(void) const { return nodes; }
 };
 
