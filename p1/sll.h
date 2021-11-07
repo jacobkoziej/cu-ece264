@@ -43,6 +43,7 @@ protected:
 
 	inline std::size_t append(T t);
 	inline std::size_t prepend(T t);
+	T rm_head(void);
 
 
 public:
@@ -138,6 +139,21 @@ inline std::size_t sll<T>::prepend(T t)
 
 	head = (tail) ? tmp : tail = tmp;
 	return ++nodes;
+}
+
+template<typename T>
+T sll<T>::rm_head(void)
+{
+	if (!head) throw std::out_of_range("empty sll");
+
+	struct node *tmp = head;
+	T data = tmp->data;
+
+	head = (tmp->next) ? tmp->next : tail = tmp->next;
+	--nodes;
+
+	delete tmp;
+	return data;
 }
 
 }
