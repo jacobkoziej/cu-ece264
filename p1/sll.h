@@ -61,6 +61,13 @@ public:
 	virtual inline std::size_t push(T t) { return this->prepend(t); }
 };
 
+template<typename T>
+class queue : public sll<T> {
+public:
+	virtual inline T pop(void) { return this->rm_head(); }
+	virtual inline std::size_t push(T t) { return this->append(t); }
+};
+
 
 template<typename T>
 inline sll<T>::~sll(void)
