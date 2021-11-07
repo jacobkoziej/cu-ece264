@@ -50,7 +50,6 @@ public:
 	inline ~sll(void);
 
 	std::size_t del(std::size_t n);
-	T get(std::size_t n);
 	inline std::size_t size(void) const { return nodes; }
 };
 
@@ -114,19 +113,6 @@ std::size_t sll<T>::del(std::size_t n)
 	}
 
 	return nodes;
-}
-
-template<typename T>
-T sll<T>::get(std::size_t n)
-{
-	if (!nodes) throw std::out_of_range("empty sll");
-	if (n > nodes - 1) throw std::out_of_range("invalid index");
-
-
-	struct node *tmp = head;
-	while (n--) tmp = tmp->next;
-
-	return tmp->data;
 }
 
 template<typename T>
