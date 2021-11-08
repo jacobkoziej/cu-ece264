@@ -124,4 +124,4 @@ inline T sll<T>::rm_head(void)
 }
 
 
-#endif /* ECE264_P1_H_ */
+#endif /* ECE264_P1_SLL_H_ */
