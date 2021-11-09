@@ -17,9 +17,43 @@
  */
 
 #include <cstdlib>
+#include <fstream>
+#include <iostream>
+
+#include "processor.h"
 
 
-int main(void)
+using namespace std;
+
+
+int main(int argc, char **argv)
 {
+	(void) argc;
+	static ifstream in;
+	static ofstream out;
+	static string   tmp;
+
+
+	cout << "input file: ";
+	cin >> tmp;
+	in.open(tmp);
+	if (!in) {
+		cerr
+			<< argv[0]
+			<< ": '" << tmp << '\''
+			<< " not found!\n";
+		return EXIT_FAILURE;
+	}
+
+	cout << "output file: ";
+	cin >> tmp;
+	out.open(tmp);
+
+	tmp.clear();
+
+
+	sable::processor p1(&in, &out);
+
+
 	return EXIT_SUCCESS;
 }
