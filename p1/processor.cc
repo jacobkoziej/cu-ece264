@@ -1,5 +1,5 @@
 /*
- * processor.h -- process input commands
+ * processor.cc -- process input commands
  * Copyright (C) 2021  Jacob Koziej <jacobkoziej@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,13 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef ECE264_P1_PROCESSOR_H_
-#define ECE264_P1_PROCESSOR_H_
+#include "processor.h"
 
 #include <istream>
-#include <map>
 #include <ostream>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "sll.h"
 
@@ -30,22 +30,28 @@
 namespace sable {
 using namespace std;
 
-class processor {
-private:
-	istream *in;
-	ostream *out;
+processor::processor(istream *in, ostream *out)
+{
+	if (!in) throw invalid_argument("no input stream");
+	if (!out) throw invalid_argument("no output stream");
 
-	map <string, sll<int>*>    ilist;
-	map <string, sll<double>*> dlist;
-	map <string, sll<string>*> slist;
-
-
-public:
-	processor(istream *in, ostream *out);
-	void process(void);
-};
-
+	this->in  = in;
+	this->out = out;
 }
 
+void processor::process(void)
+{
+	string cmd, token;
+	vector <string> tokens;
 
-#endif /* ECE264_P1_PROCESSOR_H_ */
+	while (getline(*in, cmd)) {
+		*out << "PROCESSING COMMAND: " << cmd << '\n';
+
+		stringstream tmp(cmd);
+		while (getline(tmp, token, ' ')) tokens.push_back(token);
+
+		tokens.clear();
+	}
+}
+
+}

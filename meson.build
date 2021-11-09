@@ -31,6 +31,7 @@ project(
 
 p1_sources = files(
 	'p1/p1.cc',
+	'p1/processor.cc',
 )
 
 
