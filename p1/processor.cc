@@ -30,6 +30,13 @@
 namespace sable {
 using namespace std;
 
+inline void processor::get_ident(const string &in, char &type, string &name)
+{
+	type = in[0];
+	name = in;
+	name.erase(0, 1);
+}
+
 processor::processor(istream *in, ostream *out)
 {
 	if (!in) throw invalid_argument("no input stream");

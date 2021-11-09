@@ -40,6 +40,9 @@ private:
 	map <string, sll<string>*> slist;
 
 
+	inline void get_ident(const string &in, char &type, string &name);
+
+
 public:
 	processor(istream *in, ostream *out);
 	void process(void);
