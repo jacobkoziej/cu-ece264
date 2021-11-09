@@ -86,7 +86,10 @@ void processor::process(void)
 		*out << "PROCESSING COMMAND: " << cmd << '\n';
 
 		stringstream tmp(cmd);
+		getline(tmp, cmd, ' ');
 		while (getline(tmp, token, ' ')) tokens.push_back(token);
+
+		if (cmd == "create") create(tokens);
 
 		tokens.clear();
 	}
