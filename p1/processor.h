@@ -42,6 +42,12 @@ private:
 
 	inline void get_ident(const string &in, char &type, string &name);
 
+	template <typename T>
+	inline bool key_check(map<string, T> m, string key)
+	{
+		return !(m.find(key) == m.end());
+	}
+
 
 public:
 	processor(istream *in, ostream *out);
