@@ -30,6 +30,37 @@
 namespace sable {
 using namespace std;
 
+void processor::create(const vector<string> &tokens)
+{
+	char type;
+	string name;
+	get_ident(tokens[0], type, name);
+
+	if (type == 'i') {
+		if (key_check<sll<int>*>(ilist, name)) goto error;
+		ilist[name] = (tokens[1] == "stack")
+			? (sll<int>*) new stack<int>
+			: (sll<int>*) new queue<int>;
+	}
+	if (type == 'd') {
+		if (key_check<sll<double>*>(dlist, name)) goto error;
+		dlist[name] = (tokens[1] == "stack")
+			? (sll<double>*) new stack<double>
+			: (sll<double>*) new queue<double>;
+	}
+	if (type == 's') {
+		if (key_check<sll<string>*>(slist, name)) goto error;
+		slist[name] = (tokens[1] == "stack")
+			? (sll<string>*) new stack<string>
+			: (sll<string>*) new queue<string>;
+	}
+
+	return;
+
+error:
+	*out << "ERROR: This name already exists!\n";
+}
+
 inline void processor::get_ident(const string &in, char &type, string &name)
 {
 	type = in[0];

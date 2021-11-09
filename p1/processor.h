@@ -23,6 +23,7 @@
 #include <map>
 #include <ostream>
 #include <string>
+#include <vector>
 
 #include "sll.h"
 
@@ -40,6 +41,7 @@ private:
 	map <string, sll<string>*> slist;
 
 
+	void create(const vector<string> &tokens);
 	inline void get_ident(const string &in, char &type, string &name);
 
 	template <typename T>
