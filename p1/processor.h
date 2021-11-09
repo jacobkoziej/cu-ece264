@@ -22,7 +22,9 @@
 #include <cstddef>
 #include <iostream>
 #include <map>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "sll.h"
 
@@ -42,6 +44,7 @@ private:
 
 public:
 	processor(istream *in, ostream *out);
+	void process(void);
 };
 
 
@@ -52,6 +55,21 @@ processor::processor(istream *in, ostream *out)
 
 	this->in  = in;
 	this->out = out;
+}
+
+void processor::process(void)
+{
+	string cmd, token;
+	vector <string> tokens;
+
+	while (getline(*in, cmd)) {
+		*out << "PROCESSING COMMAND: " << cmd << '\n';
+
+		stringstream tmp(cmd);
+		while (getline(tmp, token, ' ')) tokens.push_back(token);
+
+		tokens.clear();
+	}
 }
 
 }
