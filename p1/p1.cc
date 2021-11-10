@@ -54,6 +54,7 @@ int main(int argc, char **argv)
 
 
 	sable::processor p1(&in, &out);
+	p1.process();
 
 
 	return EXIT_SUCCESS;
