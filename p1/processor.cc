@@ -68,6 +68,31 @@ inline void processor::get_ident(const string &in, char &type, string &name)
 	name.erase(0, 1);
 }
 
+void processor::push(const vector<string> &tokens)
+{
+	char type;
+	string name;
+	get_ident(tokens[0], type, name);
+
+	if (type == 'i') {
+		if (!key_check<sll<int>*>(ilist, name)) goto error;
+		ilist[name]->push(stoi(tokens[1]));
+	}
+	if (type == 'd') {
+		if (!key_check<sll<double>*>(dlist, name)) goto error;
+		dlist[name]->push(stod(tokens[1]));
+	}
+	if (type == 's') {
+		if (!key_check<sll<string>*>(slist, name)) goto error;
+		slist[name]->push(tokens[1]);
+	}
+
+	return;
+
+error:
+	*out << "ERROR: This name does not exist!\n";
+}
+
 processor::processor(istream *in, ostream *out)
 {
 	if (!in) throw invalid_argument("no input stream");

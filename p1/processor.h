@@ -50,6 +50,8 @@ private:
 		return !(m.find(key) == m.end());
 	}
 
+	void push(const vector<string> &tokens);
+
 
 public:
 	processor(istream *in, ostream *out);
