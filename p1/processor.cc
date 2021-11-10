@@ -115,6 +115,7 @@ void processor::process(void)
 		while (getline(tmp, token, ' ')) tokens.push_back(token);
 
 		if (cmd == "create") create(tokens);
+		if (cmd == "push") push(tokens);
 
 		tokens.clear();
 	}
