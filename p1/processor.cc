@@ -68,6 +68,38 @@ inline void processor::get_ident(const string &in, char &type, string &name)
 	name.erase(0, 1);
 }
 
+void processor::pop(const vector<string> &tokens)
+{
+	char type;
+	string name;
+	get_ident(tokens[0], type, name);
+
+	if (type == 'i') {
+		if (!key_check<sll<int>*>(ilist, name)) goto dne;
+		if (!ilist[name]->size()) goto empty;
+		*out << "Value popped: " << ilist[name]->pop() << '\n';
+	}
+	if (type == 'd') {
+		if (!key_check<sll<double>*>(dlist, name)) goto dne;
+		if (!dlist[name]->size()) goto empty;
+		*out << "Value popped: " << dlist[name]->pop() << '\n';
+	}
+	if (type == 's') {
+		if (!key_check<sll<string>*>(slist, name)) goto dne;
+		if (!slist[name]->size()) goto empty;
+		*out << "Value popped: " << slist[name]->pop() << '\n';
+	}
+
+	return;
+
+dne:
+	*out << "ERROR: This name does not exist!\n";
+	return;
+
+empty:
+	*out << "ERROR: This list is empty!\n";
+}
+
 void processor::push(const vector<string> &tokens)
 {
 	char type;

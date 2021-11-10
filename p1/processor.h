@@ -50,6 +50,7 @@ private:
 		return !(m.find(key) == m.end());
 	}
 
+	void pop(const vector<string> &tokens);
 	void push(const vector<string> &tokens);
 
 
