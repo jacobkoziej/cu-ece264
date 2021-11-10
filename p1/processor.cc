@@ -148,6 +148,7 @@ void processor::process(void)
 
 		if (cmd == "create") create(tokens);
 		if (cmd == "push") push(tokens);
+		if (cmd == "pop") pop(tokens);
 
 		tokens.clear();
 	}
