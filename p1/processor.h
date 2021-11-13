@@ -56,6 +56,7 @@ private:
 
 public:
 	processor(istream *in, ostream *out);
+	~processor(void);
 	void process(void);
 };
 

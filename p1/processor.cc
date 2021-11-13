@@ -134,6 +134,18 @@ processor::processor(istream *in, ostream *out)
 	this->out = out;
 }
 
+processor::~processor(void)
+{
+	for (auto i : ilist)
+		delete i.second;
+
+	for (auto d : dlist)
+		delete d.second;
+
+	for (auto s : slist)
+		delete s.second;
+}
+
 void processor::process(void)
 {
 	string cmd, token;
