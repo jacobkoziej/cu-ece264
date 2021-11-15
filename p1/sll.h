@@ -102,7 +102,7 @@ inline std::size_t sll<T>::prepend(T t)
 	tmp->data = t;
 	tmp->next = head;
 
-	head = (tail) ? tmp : tail = tmp;
+	head = (head) ? tmp : tail = tmp;
 	return ++nodes;
 }
 
@@ -114,7 +114,7 @@ inline T sll<T>::rm_head(void)
 	struct node *tmp = head;
 	T data = tmp->data;
 
-	head = (tmp->next) ? tmp->next : tail = tmp->next;
+	head = (tmp->next) ? tmp->next : tail = nullptr;
 	--nodes;
 
 	delete tmp;
