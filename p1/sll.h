@@ -118,8 +118,6 @@ inline sll<T>::~sll(void)
 		head = tmp->next;
 		delete tmp;
 	}
-	tail = nullptr;
-	nodes = 0;
 }
 
 template<typename T>
