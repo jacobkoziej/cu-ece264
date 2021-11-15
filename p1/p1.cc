@@ -43,8 +43,8 @@ int main(int argc, char **argv)
 	if (!in) {
 		cerr
 			<< argv[0]
-			<< ": '" << tmp << '\''
-			<< " not found!\n";
+			<< ": '" << tmp << "' "
+			<< "not found!\n";
 		return EXIT_FAILURE;
 	}
 
