@@ -36,18 +36,23 @@ void processor::create(const vector<string> &tokens)
 	string name;
 	get_ident(tokens[0], type, name);
 
+	// int stack/queue
 	if (type == 'i') {
 		if (key_check<sll<int>*>(ilist, name)) goto error;
 		ilist[name] = (tokens[1] == "stack")
 			? (sll<int>*) new stack<int>
 			: (sll<int>*) new queue<int>;
 	}
+
+	// double stack/queue
 	if (type == 'd') {
 		if (key_check<sll<double>*>(dlist, name)) goto error;
 		dlist[name] = (tokens[1] == "stack")
 			? (sll<double>*) new stack<double>
 			: (sll<double>*) new queue<double>;
 	}
+
+	// string stack/queue
 	if (type == 's') {
 		if (key_check<sll<string>*>(slist, name)) goto error;
 		slist[name] = (tokens[1] == "stack")
@@ -63,9 +68,9 @@ error:
 
 inline void processor::get_ident(const string &in, char &type, string &name)
 {
-	type = in[0];
+	type = in[0];      // data type is the first char
 	name = in;
-	name.erase(0, 1);
+	name.erase(0, 1);  // remove data type from name
 }
 
 void processor::pop(const vector<string> &tokens)
@@ -74,16 +79,21 @@ void processor::pop(const vector<string> &tokens)
 	string name;
 	get_ident(tokens[0], type, name);
 
+	// int stack/queue
 	if (type == 'i') {
 		if (!key_check<sll<int>*>(ilist, name)) goto dne;
 		if (!ilist[name]->size()) goto empty;
 		*out << "Value popped: " << ilist[name]->pop() << '\n';
 	}
+
+	// double stack/queue
 	if (type == 'd') {
 		if (!key_check<sll<double>*>(dlist, name)) goto dne;
 		if (!dlist[name]->size()) goto empty;
 		*out << "Value popped: " << dlist[name]->pop() << '\n';
 	}
+
+	// string stack/queue
 	if (type == 's') {
 		if (!key_check<sll<string>*>(slist, name)) goto dne;
 		if (!slist[name]->size()) goto empty;
@@ -106,14 +116,18 @@ void processor::push(const vector<string> &tokens)
 	string name;
 	get_ident(tokens[0], type, name);
 
+	// int stack/queue
 	if (type == 'i') {
 		if (!key_check<sll<int>*>(ilist, name)) goto error;
 		ilist[name]->push(stoi(tokens[1]));
 	}
+	// double stack/queue
 	if (type == 'd') {
 		if (!key_check<sll<double>*>(dlist, name)) goto error;
 		dlist[name]->push(stod(tokens[1]));
 	}
+
+	// string stack/queue
 	if (type == 's') {
 		if (!key_check<sll<string>*>(slist, name)) goto error;
 		slist[name]->push(tokens[1]);
@@ -154,8 +168,9 @@ void processor::process(void)
 	while (getline(*in, cmd)) {
 		*out << "PROCESSING COMMAND: " << cmd << '\n';
 
+		// convert input line to tokens
 		stringstream tmp(cmd);
-		getline(tmp, cmd, ' ');
+		getline(tmp, cmd, ' ');  // get action
 		while (getline(tmp, token, ' ')) tokens.push_back(token);
 
 		if (cmd == "create") create(tokens);

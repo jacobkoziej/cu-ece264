@@ -31,6 +31,11 @@
 namespace sable {
 using namespace std;
 
+/*
+ * processor -- take input from a stream to manipulate integer, double,
+ * and string stacks/queues and emit processed inputs to an output
+ * stream.
+ */
 class processor {
 private:
 	istream *in;
@@ -41,22 +46,53 @@ private:
 	map <string, sll<string>*> slist;
 
 
+	/*
+	 * Create a stack/queue using processed tokens.
+	 * The tokens should include both the name and type of list.
+	 */
 	void create(const vector<string> &tokens);
+
+	/*
+	 * Translate an input name token into a stack/queue data type
+	 * and name.
+	 */
 	inline void get_ident(const string &in, char &type, string &name);
 
+	/*
+	 * Check if a named stack/queue already exists.
+	 */
 	template <typename T>
 	inline bool key_check(map<string, T> m, string key)
 	{
 		return m.find(key) != m.end();
 	}
 
+	/*
+	 * Pop a value from a stack/queue using a processed token.
+	 * The token should include both the name and data type.
+	 */
 	void pop(const vector<string> &tokens);
+
+	/*
+	 * Push a value onto a stack/queue using a processed token.
+	 * The token should include both the name and data type.
+	 */
 	void push(const vector<string> &tokens);
 
 
 public:
+	/*
+	 * Initialize the input and output streams.
+	 */
 	processor(istream *in, ostream *out);
+
 	~processor(void);
+
+	/*
+	 * Process the predefined input stream to manipulate integer,
+	 * double, and string stacks/queues and emit processed inputs
+	 * to the predefined output stream.
+	 */
 	void process(void);
 };
 

@@ -1,5 +1,7 @@
 /*
  * p1.cc -- programming assignment #1
+ *          process an input file and output processing output to the
+ *          specified output file
  * Copyright (C) 2021  Jacob Koziej <jacobkoziej@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
