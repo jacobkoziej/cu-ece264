@@ -47,7 +47,7 @@ private:
 	template <typename T>
 	inline bool key_check(map<string, T> m, string key)
 	{
-		return !(m.find(key) == m.end());
+		return m.find(key) != m.end();
 	}
 
 	void pop(const vector<string> &tokens);
