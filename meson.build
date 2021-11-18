@@ -34,8 +34,17 @@ p1_sources = files(
 	'p1/processor.cc',
 )
 
+p2_sources = files(
+	'p2/p2.cc',
+)
+
 
 executable(
 	'p1',
 	sources : p1_sources,
+)
+
+executable(
+	'p2',
+	sources : p2_sources,
 )
