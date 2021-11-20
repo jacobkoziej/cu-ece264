@@ -111,7 +111,33 @@ int main() {
 // You may add global variables, functions, and/or
 // class defintions here if you wish.
 
-void sortDataList(list<Data *> &l) {
-  // Fill this in
+#define MAX_ITEMS 1200000
 
+
+Data *chonker0[MAX_ITEMS];
+
+Data **tmp = chonker0;
+
+size_t nodes;
+list<Data*>::iterator node;
+
+
+void sortDataList(list<Data*> &l)
+{
+	nodes = l.size();
+	node  = l.begin();
+
+	// load the unsorted list into tmp array
+	for (size_t i = 0; i < nodes; i++) {
+		tmp[i] = *node;
+		++node;
+	}
+
+
+	// write the sorted tmp array to the input list
+	node = l.begin();
+	for (size_t i = 0; i < nodes; i++) {
+		*node = tmp[i];
+		++node;
+	}
 }
