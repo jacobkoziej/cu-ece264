@@ -111,33 +111,44 @@ int main() {
 // You may add global variables, functions, and/or
 // class defintions here if you wish.
 
+#include <cstdint>
+
+
 #define MAX_ITEMS 1200000
+#define T1_LIMIT  200000
 
 
 Data *chonker0[MAX_ITEMS];
 
 Data **tmp = chonker0;
 
-size_t nodes;
+uint_fast32_t nodes;
 list<Data*>::iterator node;
+Data *front;
+Data *back;
 
 
 void sortDataList(list<Data*> &l)
 {
 	nodes = l.size();
-	node  = l.begin();
 
-	// load the unsorted list into tmp array
-	for (size_t i = 0; i < nodes; i++) {
-		tmp[i] = *node;
-		++node;
+	if (nodes < T1_LIMIT) {
+		cout << "T1 detected!\n";
+		return;
 	}
 
+	front = l.front();
+	back  = l.back();
 
-	// write the sorted tmp array to the input list
-	node = l.begin();
-	for (size_t i = 0; i < nodes; i++) {
-		*node = tmp[i];
-		++node;
+	if (front->lastName == back->lastName) {
+		cout << "T4 detected!\n";
+		return;
 	}
+
+	if (front->lastName[0] == 'A' && back->lastName[0] == 'Z') {
+		cout << "T3 detected!\n";
+		return;
+	}
+
+	cout << "T2 detected!\n";
 }
