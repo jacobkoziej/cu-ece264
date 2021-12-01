@@ -128,6 +128,24 @@ Data *front;
 Data *back;
 
 
+class p2_sort {
+public:
+	/*
+	 * We're going to fully abuse the fact that we can run
+	 * constructors before main().  This will allow for us to
+	 * dynamically allocate data structure which are far too tedious
+	 * to allocate statically.
+	 */
+	p2_sort(void);
+};
+
+p2_sort::p2_sort(void)
+{
+}
+
+p2_sort p2;
+
+
 void sortDataList(list<Data*> &l)
 {
 	nodes = l.size();
