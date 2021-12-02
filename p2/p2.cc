@@ -111,6 +111,7 @@ int main() {
 // You may add global variables, functions, and/or
 // class defintions here if you wish.
 
+#include <climits>
 #include <cstdint>
 
 
@@ -120,7 +121,18 @@ int main() {
 
 class p2_sort {
 private:
+	struct uniq_prefix {
+		unsigned count;
+		struct uniq_prefix *child[UCHAR_MAX + 1];
+
+		uniq_prefix(void) {
+			count = 0;
+			memset(child, 0, sizeof(child));
+		}
+	};
+
 	static const string last_names[500];
+	struct uniq_prefix *uniq_prefix_root[UCHAR_MAX + 1];
 
 	Data **buf;
 
@@ -303,6 +315,7 @@ void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
 p2_sort::p2_sort(void)
 {
 	buf = new Data*[MAX_ITEMS];
+	memset(uniq_prefix_root, 0, sizeof(uniq_prefix_root));
 }
 
 p2_sort p2;
