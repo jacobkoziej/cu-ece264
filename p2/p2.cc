@@ -124,9 +124,14 @@ private:
 
 	Data **buf;
 
+	static inline bool full_cmp(const Data *a, const Data *b);
+	static inline bool ssn_cmp(const Data *a, const Data *b);
+
+	void std_sort(bool (*cmp) (const Data *a, const Data *b));
 
 public:
 	uint_fast32_t nodes;
+	list<Data *> *src;
 	Data *front, *back;
 
 	/*
@@ -136,6 +141,11 @@ public:
 	 * to allocate statically.
 	 */
 	p2_sort(void);
+
+	inline void t1_sort(void) { std_sort(full_cmp); }
+	inline void t2_sort(void) { std_sort(full_cmp); }
+	inline void t3_sort(void) { std_sort(full_cmp); }
+	inline void t4_sort(void) { std_sort(ssn_cmp); }
 };
 
 const string p2_sort::last_names[500] = {
@@ -266,6 +276,30 @@ const string p2_sort::last_names[500] = {
 	"YANG",       "YOUNG",      "ZHANG",       "ZIMMERMAN",
 };
 
+inline bool p2_sort::full_cmp(const Data *a, const Data *b)
+{
+	if (a->lastName != b->lastName) return a->lastName < b->lastName;
+	if (a->firstName != b->firstName) return a->firstName < b->firstName;
+	return a->ssn < b->ssn;
+}
+
+inline bool p2_sort::ssn_cmp(const Data *a, const Data *b)
+{
+	return a->ssn < b->ssn;
+}
+
+void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
+{
+	list<Data*>::iterator node = src->begin();
+
+	for (uint_fast32_t i = 0; i < nodes; i++, node++) buf[i] = *node;
+
+	sort(buf, buf + nodes, cmp);
+
+	node = src->begin();
+	for (uint_fast32_t i = 0; i < nodes; i++, node++) *node = buf[i];
+}
+
 p2_sort::p2_sort(void)
 {
 	buf = new Data*[MAX_ITEMS];
@@ -277,9 +311,11 @@ p2_sort p2;
 void sortDataList(list<Data*> &l)
 {
 	p2.nodes = l.size();
+	p2.src   = &l;
 
 	if (p2.nodes < T1_LIMIT) {
 		cout << "T1 detected!\n";
+		p2.t1_sort();
 		return;
 	}
 
@@ -288,13 +324,16 @@ void sortDataList(list<Data*> &l)
 
 	if (p2.front->lastName == p2.back->lastName) {
 		cout << "T4 detected!\n";
+		p2.t4_sort();
 		return;
 	}
 
 	if (p2.front->lastName[0] == 'A' && p2.back->lastName[0] == 'Z') {
 		cout << "T3 detected!\n";
+		p2.t3_sort();
 		return;
 	}
 
 	cout << "T2 detected!\n";
+	p2.t2_sort();
 }
