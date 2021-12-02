@@ -118,22 +118,17 @@ int main() {
 #define T1_LIMIT  200000
 
 
-Data *chonker0[MAX_ITEMS];
-
-Data **tmp = chonker0;
-
-uint_fast32_t nodes;
-list<Data*>::iterator node;
-Data *front;
-Data *back;
-
-
 class p2_sort {
 private:
 	static const string last_names[500];
 
+	Data **buf;
+
 
 public:
+	uint_fast32_t nodes;
+	Data *front, *back;
+
 	/*
 	 * We're going to fully abuse the fact that we can run
 	 * constructors before main().  This will allow for us to
@@ -273,6 +268,7 @@ const string p2_sort::last_names[500] = {
 
 p2_sort::p2_sort(void)
 {
+	buf = new Data*[MAX_ITEMS];
 }
 
 p2_sort p2;
@@ -280,22 +276,22 @@ p2_sort p2;
 
 void sortDataList(list<Data*> &l)
 {
-	nodes = l.size();
+	p2.nodes = l.size();
 
-	if (nodes < T1_LIMIT) {
+	if (p2.nodes < T1_LIMIT) {
 		cout << "T1 detected!\n";
 		return;
 	}
 
-	front = l.front();
-	back  = l.back();
+	p2.front = l.front();
+	p2.back  = l.back();
 
-	if (front->lastName == back->lastName) {
+	if (p2.front->lastName == p2.back->lastName) {
 		cout << "T4 detected!\n";
 		return;
 	}
 
-	if (front->lastName[0] == 'A' && back->lastName[0] == 'Z') {
+	if (p2.front->lastName[0] == 'A' && p2.back->lastName[0] == 'Z') {
 		cout << "T3 detected!\n";
 		return;
 	}
