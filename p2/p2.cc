@@ -132,7 +132,7 @@ private:
 	};
 
 	static const string last_names[500];
-	struct uniq_prefix *uniq_prefix_root[UCHAR_MAX + 1];
+	struct uniq_prefix *uniq_prefix_root;
 
 	Data **buf;
 
@@ -315,7 +315,7 @@ void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
 p2_sort::p2_sort(void)
 {
 	buf = new Data*[MAX_ITEMS];
-	memset(uniq_prefix_root, 0, sizeof(uniq_prefix_root));
+	uniq_prefix_root = new uniq_prefix;
 }
 
 p2_sort p2;
