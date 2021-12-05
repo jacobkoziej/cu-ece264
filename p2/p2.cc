@@ -132,8 +132,22 @@ private:
 		}
 	};
 
+	struct uniq_prefix_sort {
+		unsigned children;
+		struct uniq_prefix_sort *child[UCHAR_MAX + 1];
+		Data *bucket_head;
+		Data *bucket_tail;
+
+		uniq_prefix_sort(void) {
+			children = 0;
+			memset(child, 0, sizeof(child));
+			bucket_head = bucket_tail = nullptr;
+		}
+	};
+
 	static const string last_names[LAST_NAMES];
 	struct uniq_prefix *uniq_prefix_root;
+	struct uniq_prefix_sort *uniq_prefix_sort_root;
 
 	Data **buf;
 
@@ -349,6 +363,8 @@ p2_sort::p2_sort(void)
 {
 	buf = new Data*[MAX_ITEMS];
 	uniq_prefix_root = new uniq_prefix;
+	uniq_prefix_sort_root = new uniq_prefix_sort;
+
 	gen_uniq_prefix_trie();
 }
 
