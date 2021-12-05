@@ -116,6 +116,7 @@ int main() {
 
 
 #define MAX_ITEMS 1200000
+#define LAST_NAMES 500
 #define T1_LIMIT  200000
 
 
@@ -131,7 +132,7 @@ private:
 		}
 	};
 
-	static const string last_names[500];
+	static const string last_names[LAST_NAMES];
 	struct uniq_prefix *uniq_prefix_root;
 
 	Data **buf;
@@ -168,7 +169,7 @@ public:
 	inline void t4_sort(void) { std_sort(ssn_cmp); }
 };
 
-const string p2_sort::last_names[500] = {
+const string p2_sort::last_names[LAST_NAMES] = {
 	"ACOSTA",     "ADAMS",      "ADKINS",      "AGUILAR",
 	"AGUIRRE",    "ALEXANDER",  "ALLEN",       "ALVARADO",
 	"ALVAREZ",    "ANDERSON",   "ANDREWS",     "ARMSTRONG",
