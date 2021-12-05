@@ -136,8 +136,8 @@ private:
 	struct uniq_prefix_sort {
 		unsigned children;
 		struct uniq_prefix_sort *child[UCHAR_MAX + 1];
-		Data *bucket_head;
-		Data *bucket_tail;
+		Data **bucket_head;
+		Data **bucket_tail;
 
 		uniq_prefix_sort(void) {
 			children = 0;
@@ -380,7 +380,7 @@ void p2_sort::alloc_buckets(void)
 		tmp = buckets[i];
 		tmp->bucket_tail
 			= tmp->bucket_head
-			= new Data[LAST_NAME_BUCKETS];
+			= new Data*[LAST_NAME_BUCKETS];
 	}
 }
 
