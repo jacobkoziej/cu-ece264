@@ -136,6 +136,14 @@ private:
 
 	Data **buf;
 
+	/*
+	 * Since we know the input data, we can calculated the unique
+	 * prefix required to determine each input name.  One thing to
+	 * keep in mind is that we need to keep track of NUL bytes as a
+	 * means of differentiation between names like "LE" and "LEE".
+	 */
+	void gen_uniq_prefix_trie(void);
+
 	static inline bool full_cmp(const Data *a, const Data *b);
 	static inline bool ssn_cmp(const Data *a, const Data *b);
 
@@ -288,6 +296,30 @@ const string p2_sort::last_names[500] = {
 	"YANG",       "YOUNG",      "ZHANG",       "ZIMMERMAN",
 };
 
+void p2_sort::gen_uniq_prefix_trie(void)
+{
+	const char *name;
+	unsigned int ltr;
+	size_t name_siz;
+	uniq_prefix *tmp;
+
+	for (size_t i = 0; i < sizeof(last_names)/sizeof(string); i++) {
+		tmp      = uniq_prefix_root;
+		name     = last_names[i].c_str();
+		name_siz = last_names[i].size() + 1;  // we want to count NUL
+
+		for (size_t j = 0; j < name_siz; j++) {
+			ltr = (unsigned) name[j];
+
+			if (!tmp->child[ltr])
+				tmp->child[ltr] = new uniq_prefix;
+
+			tmp = tmp->child[ltr];
+			++tmp->count;
+		}
+	}
+}
+
 inline bool p2_sort::full_cmp(const Data *a, const Data *b)
 {
 	if (a->lastName != b->lastName) return a->lastName < b->lastName;
@@ -316,6 +348,7 @@ p2_sort::p2_sort(void)
 {
 	buf = new Data*[MAX_ITEMS];
 	uniq_prefix_root = new uniq_prefix;
+	gen_uniq_prefix_trie();
 }
 
 p2_sort p2;
