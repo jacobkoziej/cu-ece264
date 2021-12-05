@@ -117,6 +117,7 @@ int main() {
 
 #define MAX_ITEMS 1200000
 #define LAST_NAMES 500
+#define LAST_NAME_BUCKETS (MAX_ITEMS / LAST_NAMES)
 #define T1_LIMIT  200000
 
 
@@ -149,6 +150,9 @@ private:
 	struct uniq_prefix *uniq_prefix_root;
 	struct uniq_prefix_sort *uniq_prefix_sort_root;
 
+	unsigned bucket_cnt = 0;
+	uniq_prefix_sort *buckets[LAST_NAMES];
+
 	Data **buf;
 
 	/*
@@ -158,6 +162,19 @@ private:
 	 * means of differentiation between names like "LE" and "LEE".
 	 */
 	void gen_uniq_prefix_trie(void);
+
+	/*
+	 * From the unique prefix trie we want to generate a trie which
+	 * can handle the input data.  A terminal node will have zero
+	 * children, indicating the end of the search.
+	 */
+	void gen_uniq_prefix_sort_trie(uniq_prefix *in, uniq_prefix_sort *out);
+
+	/*
+	 * We want the trie nodes to have good memory locality, so we
+	 * allocate all the buckets after generating the trie.
+	 */
+	void alloc_buckets(void);
 
 	static inline bool full_cmp(const Data *a, const Data *b);
 	static inline bool ssn_cmp(const Data *a, const Data *b);
@@ -335,6 +352,38 @@ void p2_sort::gen_uniq_prefix_trie(void)
 	}
 }
 
+void p2_sort::gen_uniq_prefix_sort_trie(uniq_prefix *in, uniq_prefix_sort *out)
+{
+	// we've reached the end of a unique prefix
+	if (in->count == 1) {
+		buckets[bucket_cnt++] = out;
+		return;
+	}
+
+	for (int i = 0; i < UCHAR_MAX + 1; i++) {
+		if (in->child[i]) {
+			if (!out->child[i]) {
+				out->child[i] = new uniq_prefix_sort;
+				++out->children;
+			}
+
+			gen_uniq_prefix_sort_trie(in->child[i], out->child[i]);
+		}
+	}
+}
+
+void p2_sort::alloc_buckets(void)
+{
+	uniq_prefix_sort *tmp;
+
+	for (unsigned i = 0; i < bucket_cnt; i++) {
+		tmp = buckets[i];
+		tmp->bucket_tail
+			= tmp->bucket_head
+			= new Data[LAST_NAME_BUCKETS];
+	}
+}
+
 inline bool p2_sort::full_cmp(const Data *a, const Data *b)
 {
 	if (a->lastName != b->lastName) return a->lastName < b->lastName;
@@ -366,6 +415,8 @@ p2_sort::p2_sort(void)
 	uniq_prefix_sort_root = new uniq_prefix_sort;
 
 	gen_uniq_prefix_trie();
+	gen_uniq_prefix_sort_trie(uniq_prefix_root, uniq_prefix_sort_root);
+	alloc_buckets();
 }
 
 p2_sort p2;
