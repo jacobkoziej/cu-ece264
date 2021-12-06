@@ -119,6 +119,7 @@ int main() {
 #define LAST_NAMES 500
 #define LAST_NAME_BUCKETS (MAX_ITEMS / LAST_NAMES)
 #define FIRST_NAMES 494
+#define FIRST_NAME_BUCKETS (LAST_NAME_BUCKETS / FIRST_NAMES)
 #define T1_LIMIT  200000
 
 
@@ -166,9 +167,12 @@ private:
 	struct prefix_trie *last_name_prefix;
 	struct uniq_prefix_trie *last_name_uniq_prefix;
 	struct prefix_trie *first_name_prefix;
+	struct uniq_prefix_trie *first_name_uniq_prefix;
 
 	unsigned last_name_bucket_cnt = 0;
 	uniq_prefix_trie *last_name_buckets[LAST_NAMES];
+	unsigned first_name_bucket_cnt = 0;
+	uniq_prefix_trie *first_name_buckets[FIRST_NAMES];
 
 	Data **buf;
 
@@ -185,13 +189,22 @@ private:
 	 * can handle the input data.  A terminal node will have zero
 	 * children, indicating the end of the search.
 	 */
-	void gen_uniq_prefix_trie(prefix_trie *in, uniq_prefix_trie *out);
+	void gen_uniq_prefix_trie(
+		prefix_trie *in,
+		uniq_prefix_trie *out,
+		uniq_prefix_trie **buckets,
+		unsigned *bucket_cnt
+	);
 
 	/*
 	 * We want the trie nodes to have good memory locality, so we
 	 * allocate all the buckets after generating the trie.
 	 */
-	void alloc_buckets(void);
+	void alloc_buckets(
+		uniq_prefix_trie **buckets,
+		const unsigned bucket_cnt,
+		const unsigned bucket_siz
+	);
 
 	static inline bool full_cmp(const Data *a, const Data *b);
 	static inline bool ssn_cmp(const Data *a, const Data *b);
@@ -501,11 +514,16 @@ void p2_sort::gen_prefix_trie(prefix_trie *out, const string *in, size_t cnt)
 	}
 }
 
-void p2_sort::gen_uniq_prefix_trie(prefix_trie *in, uniq_prefix_trie *out)
+void p2_sort::gen_uniq_prefix_trie(
+		prefix_trie *in,
+		uniq_prefix_trie *out,
+		uniq_prefix_trie **buckets,
+		unsigned *bucket_cnt
+)
 {
 	// we've reached the end of a unique prefix
 	if (in->count == 1) {
-		last_name_buckets[last_name_bucket_cnt++] = out;
+		buckets[(*bucket_cnt)++] = out;
 		return;
 	}
 
@@ -516,20 +534,29 @@ void p2_sort::gen_uniq_prefix_trie(prefix_trie *in, uniq_prefix_trie *out)
 				++out->children;
 			}
 
-			gen_uniq_prefix_trie(in->child[i], out->child[i]);
+			gen_uniq_prefix_trie(
+				in->child[i],
+				out->child[i],
+				buckets,
+				bucket_cnt
+			);
 		}
 	}
 }
 
-void p2_sort::alloc_buckets(void)
+void p2_sort::alloc_buckets(
+	uniq_prefix_trie **buckets,
+	const unsigned bucket_cnt,
+	const unsigned bucket_siz
+)
 {
 	uniq_prefix_trie *tmp;
 
-	for (unsigned i = 0; i < last_name_bucket_cnt; i++) {
-		tmp = last_name_buckets[i];
+	for (unsigned i = 0; i < bucket_cnt; i++) {
+		tmp = buckets[i];
 		tmp->bucket_tail
 			= tmp->bucket_head
-			= new Data*[LAST_NAME_BUCKETS];
+			= new Data*[bucket_siz];
 	}
 }
 
@@ -574,11 +601,32 @@ p2_sort::p2_sort(void)
 	last_name_prefix = new prefix_trie;
 	last_name_uniq_prefix = new uniq_prefix_trie;
 	first_name_prefix = new prefix_trie;
+	first_name_uniq_prefix = new uniq_prefix_trie;
 
 	gen_prefix_trie(last_name_prefix, last_names, LAST_NAMES);
 	gen_prefix_trie(first_name_prefix, first_names, FIRST_NAMES);
-	gen_uniq_prefix_trie(last_name_prefix, last_name_uniq_prefix);
-	alloc_buckets();
+	gen_uniq_prefix_trie(
+		last_name_prefix,
+		last_name_uniq_prefix,
+		last_name_buckets,
+		&last_name_bucket_cnt
+	);
+	gen_uniq_prefix_trie(
+		first_name_prefix,
+		first_name_uniq_prefix,
+		first_name_buckets,
+		&first_name_bucket_cnt
+	);
+	alloc_buckets(
+		last_name_buckets,
+		last_name_bucket_cnt,
+		LAST_NAME_BUCKETS
+	);
+	alloc_buckets(
+		first_name_buckets,
+		first_name_bucket_cnt,
+		FIRST_NAME_BUCKETS
+	);
 }
 
 p2_sort p2;
