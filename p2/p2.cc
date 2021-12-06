@@ -124,23 +124,36 @@ int main() {
 
 class p2_sort {
 private:
-	struct uniq_prefix {
+	/*
+	 * We want to determine the shortest unique prefix for each
+	 * name, to do so we need to keep track of the number of
+	 * occurrences of a character.  From this we can deduce that if
+	 * a character appears just once, we've reached a unique prefix.
+	 */
+	struct prefix_trie {
 		unsigned count;
-		struct uniq_prefix *child[UCHAR_MAX + 1];
+		struct prefix_trie *child[UCHAR_MAX + 1];
 
-		uniq_prefix(void) {
+		prefix_trie(void) {
 			count = 0;
 			memset(child, 0, sizeof(child));
 		}
 	};
 
-	struct uniq_prefix_sort {
+	/*
+	 * We want to sort input names using their shortest unique
+	 * prefix.  This will allow for us to avoid most of the string
+	 * when determining names.  Using this we can deduce that if a
+	 * character has no more children, we've identified a name.
+	 */
+	struct uniq_prefix_trie {
 		unsigned children;
-		struct uniq_prefix_sort *child[UCHAR_MAX + 1];
+		struct uniq_prefix_trie *child[UCHAR_MAX + 1];
+
 		Data **bucket_head;
 		Data **bucket_tail;
 
-		uniq_prefix_sort(void) {
+		uniq_prefix_trie(void) {
 			children = 0;
 			memset(child, 0, sizeof(child));
 			bucket_head = bucket_tail = nullptr;
@@ -149,11 +162,12 @@ private:
 
 	static const string last_names[LAST_NAMES];
 	static const string first_names[FIRST_NAMES];
-	struct uniq_prefix *uniq_prefix_root;
-	struct uniq_prefix_sort *uniq_prefix_sort_root;
 
-	unsigned bucket_cnt = 0;
-	uniq_prefix_sort *buckets[LAST_NAMES];
+	struct prefix_trie *last_name_prefix;
+	struct uniq_prefix_trie *last_name_uniq_prefix;
+
+	unsigned last_name_bucket_cnt = 0;
+	uniq_prefix_trie *last_name_buckets[LAST_NAMES];
 
 	Data **buf;
 
@@ -163,14 +177,14 @@ private:
 	 * keep in mind is that we need to keep track of NUL bytes as a
 	 * means of differentiation between names like "LE" and "LEE".
 	 */
-	void gen_uniq_prefix_trie(void);
+	void gen_prefix_trie(void);
 
 	/*
 	 * From the unique prefix trie we want to generate a trie which
 	 * can handle the input data.  A terminal node will have zero
 	 * children, indicating the end of the search.
 	 */
-	void gen_uniq_prefix_sort_trie(uniq_prefix *in, uniq_prefix_sort *out);
+	void gen_uniq_prefix_trie(prefix_trie *in, uniq_prefix_trie *out);
 
 	/*
 	 * We want the trie nodes to have good memory locality, so we
@@ -192,7 +206,6 @@ private:
 public:
 	uint_fast32_t nodes;
 	list<Data *> *src;
-	Data *front, *back;
 
 	/*
 	 * We're going to fully abuse the fact that we can run
@@ -463,15 +476,15 @@ const string p2_sort::first_names[FIRST_NAMES] = {
 	"ZOE",       "ZOEY",
 };
 
-void p2_sort::gen_uniq_prefix_trie(void)
+void p2_sort::gen_prefix_trie(void)
 {
 	const char *name;
 	unsigned int ltr;
 	size_t name_siz;
-	uniq_prefix *tmp;
+	prefix_trie *tmp;
 
 	for (size_t i = 0; i < sizeof(last_names)/sizeof(string); i++) {
-		tmp      = uniq_prefix_root;
+		tmp      = last_name_prefix;
 		name     = last_names[i].c_str();
 		name_siz = last_names[i].size() + 1;  // we want to count NUL
 
@@ -479,7 +492,7 @@ void p2_sort::gen_uniq_prefix_trie(void)
 			ltr = (unsigned) name[j];
 
 			if (!tmp->child[ltr])
-				tmp->child[ltr] = new uniq_prefix;
+				tmp->child[ltr] = new prefix_trie;
 
 			tmp = tmp->child[ltr];
 			++tmp->count;
@@ -487,32 +500,32 @@ void p2_sort::gen_uniq_prefix_trie(void)
 	}
 }
 
-void p2_sort::gen_uniq_prefix_sort_trie(uniq_prefix *in, uniq_prefix_sort *out)
+void p2_sort::gen_uniq_prefix_trie(prefix_trie *in, uniq_prefix_trie *out)
 {
 	// we've reached the end of a unique prefix
 	if (in->count == 1) {
-		buckets[bucket_cnt++] = out;
+		last_name_buckets[last_name_bucket_cnt++] = out;
 		return;
 	}
 
 	for (int i = 0; i < UCHAR_MAX + 1; i++) {
 		if (in->child[i]) {
 			if (!out->child[i]) {
-				out->child[i] = new uniq_prefix_sort;
+				out->child[i] = new uniq_prefix_trie;
 				++out->children;
 			}
 
-			gen_uniq_prefix_sort_trie(in->child[i], out->child[i]);
+			gen_uniq_prefix_trie(in->child[i], out->child[i]);
 		}
 	}
 }
 
 void p2_sort::alloc_buckets(void)
 {
-	uniq_prefix_sort *tmp;
+	uniq_prefix_trie *tmp;
 
-	for (unsigned i = 0; i < bucket_cnt; i++) {
-		tmp = buckets[i];
+	for (unsigned i = 0; i < last_name_bucket_cnt; i++) {
+		tmp = last_name_buckets[i];
 		tmp->bucket_tail
 			= tmp->bucket_head
 			= new Data*[LAST_NAME_BUCKETS];
@@ -533,8 +546,8 @@ inline bool p2_sort::ssn_cmp(const Data *a, const Data *b)
 
 void p2_sort::index_last_name(Data *in)
 {
-	uniq_prefix_sort *tmp = uniq_prefix_sort_root;
-	const char *name = in->lastName.c_str();
+	auto *tmp  = last_name_uniq_prefix;
+	auto *name = in->lastName.c_str();
 
 	for (unsigned i = 0; tmp->children; i++)
 		tmp = tmp->child[(unsigned) name[i]];
@@ -544,7 +557,7 @@ void p2_sort::index_last_name(Data *in)
 
 void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
 {
-	list<Data*>::iterator node = src->begin();
+	auto node = src->begin();
 
 	for (uint_fast32_t i = 0; i < nodes; i++, node++) buf[i] = *node;
 
@@ -557,11 +570,11 @@ void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
 p2_sort::p2_sort(void)
 {
 	buf = new Data*[MAX_ITEMS];
-	uniq_prefix_root = new uniq_prefix;
-	uniq_prefix_sort_root = new uniq_prefix_sort;
+	last_name_prefix = new prefix_trie;
+	last_name_uniq_prefix = new uniq_prefix_trie;
 
-	gen_uniq_prefix_trie();
-	gen_uniq_prefix_sort_trie(uniq_prefix_root, uniq_prefix_sort_root);
+	gen_prefix_trie();
+	gen_uniq_prefix_trie(last_name_prefix, last_name_uniq_prefix);
 	alloc_buckets();
 }
 
@@ -579,16 +592,16 @@ void sortDataList(list<Data*> &l)
 		return;
 	}
 
-	p2.front = l.front();
-	p2.back  = l.back();
+	auto front = l.front();
+	auto back  = l.back();
 
-	if (p2.front->lastName == p2.back->lastName) {
+	if (front->lastName == back->lastName) {
 		cout << "T4 detected!\n";
 		p2.t4_sort();
 		return;
 	}
 
-	if (p2.front->lastName[0] == 'A' && p2.back->lastName[0] == 'Z') {
+	if (front->lastName[0] == 'A' && back->lastName[0] == 'Z') {
 		cout << "T3 detected!\n";
 		p2.t3_sort();
 		return;
