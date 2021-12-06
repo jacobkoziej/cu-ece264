@@ -179,6 +179,12 @@ private:
 	static inline bool full_cmp(const Data *a, const Data *b);
 	static inline bool ssn_cmp(const Data *a, const Data *b);
 
+	/*
+	 * We want to sort each last name in its appropriate "bucket"
+	 * using the generated unique prefix trie.
+	 */
+	void index_last_name(Data *in);
+
 	void std_sort(bool (*cmp) (const Data *a, const Data *b));
 
 public:
@@ -394,6 +400,17 @@ inline bool p2_sort::full_cmp(const Data *a, const Data *b)
 inline bool p2_sort::ssn_cmp(const Data *a, const Data *b)
 {
 	return a->ssn < b->ssn;
+}
+
+void p2_sort::index_last_name(Data *in)
+{
+	uniq_prefix_sort *tmp = uniq_prefix_sort_root;
+	const char *name = in->lastName.c_str();
+
+	for (unsigned i = 0; tmp->children; i++)
+		tmp = tmp->child[(unsigned) name[i]];
+
+	*(tmp->bucket_tail++) = in;
 }
 
 void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
