@@ -165,6 +165,7 @@ private:
 
 	struct prefix_trie *last_name_prefix;
 	struct uniq_prefix_trie *last_name_uniq_prefix;
+	struct prefix_trie *first_name_prefix;
 
 	unsigned last_name_bucket_cnt = 0;
 	uniq_prefix_trie *last_name_buckets[LAST_NAMES];
@@ -177,7 +178,7 @@ private:
 	 * keep in mind is that we need to keep track of NUL bytes as a
 	 * means of differentiation between names like "LE" and "LEE".
 	 */
-	void gen_prefix_trie(void);
+	void gen_prefix_trie(prefix_trie *out, const string *in, size_t cnt);
 
 	/*
 	 * From the unique prefix trie we want to generate a trie which
@@ -476,17 +477,17 @@ const string p2_sort::first_names[FIRST_NAMES] = {
 	"ZOE",       "ZOEY",
 };
 
-void p2_sort::gen_prefix_trie(void)
+void p2_sort::gen_prefix_trie(prefix_trie *out, const string *in, size_t cnt)
 {
 	const char *name;
 	unsigned int ltr;
 	size_t name_siz;
 	prefix_trie *tmp;
 
-	for (size_t i = 0; i < sizeof(last_names)/sizeof(string); i++) {
-		tmp      = last_name_prefix;
-		name     = last_names[i].c_str();
-		name_siz = last_names[i].size() + 1;  // we want to count NUL
+	for (size_t i = 0; i < cnt; i++) {
+		tmp      = out;
+		name     = in[i].c_str();
+		name_siz = in[i].size() + 1;  // we want to count NUL
 
 		for (size_t j = 0; j < name_siz; j++) {
 			ltr = (unsigned) name[j];
@@ -572,8 +573,10 @@ p2_sort::p2_sort(void)
 	buf = new Data*[MAX_ITEMS];
 	last_name_prefix = new prefix_trie;
 	last_name_uniq_prefix = new uniq_prefix_trie;
+	first_name_prefix = new prefix_trie;
 
-	gen_prefix_trie();
+	gen_prefix_trie(last_name_prefix, last_names, LAST_NAMES);
+	gen_prefix_trie(first_name_prefix, first_names, FIRST_NAMES);
 	gen_uniq_prefix_trie(last_name_prefix, last_name_uniq_prefix);
 	alloc_buckets();
 }
