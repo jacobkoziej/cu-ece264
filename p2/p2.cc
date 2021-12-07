@@ -213,7 +213,7 @@ private:
 	 * We want to sort each name in its appropriate "bucket" using the
 	 * generated unique prefix trie.
 	 */
-	void index_name(uniq_prefix_trie *trie, Data *in);
+	void index_name(uniq_prefix_trie *trie, Data *in, const char *name);
 
 	void std_sort(bool (*cmp) (const Data *a, const Data *b));
 
@@ -572,10 +572,9 @@ inline bool p2_sort::ssn_cmp(const Data *a, const Data *b)
 	return a->ssn < b->ssn;
 }
 
-void p2_sort::index_name(uniq_prefix_trie *trie, Data *in)
+void p2_sort::index_name(uniq_prefix_trie *trie, Data *in, const char *name)
 {
 	auto *tmp  = trie;
-	auto *name = in->lastName.c_str();
 
 	for (unsigned i = 0; tmp->children; i++)
 		tmp = tmp->child[(unsigned) name[i]];
