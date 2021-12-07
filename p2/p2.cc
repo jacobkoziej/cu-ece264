@@ -215,6 +215,12 @@ private:
 	 */
 	void index_name(uniq_prefix_trie *trie, Data *in, const char *name);
 
+	/*
+	 * We will want to reuse our unique prefix trie at some point so
+	 * we need to have a means of "clearing" our buckets.
+	 */
+	void clear_buckets(uniq_prefix_trie **buckets, unsigned bucket_cnt);
+
 	void std_sort(bool (*cmp) (const Data *a, const Data *b));
 
 public:
@@ -580,6 +586,20 @@ void p2_sort::index_name(uniq_prefix_trie *trie, Data *in, const char *name)
 		tmp = tmp->child[(unsigned) name[i]];
 
 	*(tmp->bucket_tail++) = in;
+}
+
+void p2_sort::clear_buckets(uniq_prefix_trie **buckets, unsigned bucket_cnt)
+{
+	uniq_prefix_trie *tmp;
+
+	for (unsigned i = 0; i < bucket_cnt; i++) {
+		tmp = buckets[i];
+
+		// essentially we're concerned with just resetting the
+		// perceived initial state
+		tmp->bucket_tail = tmp->bucket_head;
+		*tmp->bucket_head = nullptr;
+	}
 }
 
 void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
