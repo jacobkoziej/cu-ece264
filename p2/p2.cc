@@ -235,6 +235,12 @@ public:
 	 */
 	p2_sort(void);
 
+	/*
+	 * The provided code does not free any allocated memory so we'll
+	 * follow suit ;)
+	 */
+	//~p2_sort(void);
+
 	inline void t1_sort(void) { std_sort(full_cmp); }
 	inline void t2_sort(void) { std_sort(full_cmp); }
 	inline void t3_sort(void) { std_sort(full_cmp); }
