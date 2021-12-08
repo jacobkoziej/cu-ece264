@@ -222,6 +222,7 @@ private:
 	void clear_buckets(uniq_prefix_trie **buckets, unsigned bucket_cnt);
 
 	void std_sort(bool (*cmp) (const Data *a, const Data *b));
+	void uniq_prefix_sort(void);
 
 public:
 	uint_fast32_t nodes;
@@ -241,8 +242,8 @@ public:
 	 */
 	//~p2_sort(void);
 
-	inline void t1_sort(void) { std_sort(full_cmp); }
-	inline void t2_sort(void) { std_sort(full_cmp); }
+	inline void t1_sort(void) { uniq_prefix_sort(); }
+	inline void t2_sort(void) { uniq_prefix_sort(); }
 	inline void t3_sort(void) { std_sort(full_cmp); }
 	inline void t4_sort(void) { std_sort(ssn_cmp); }
 };
@@ -618,6 +619,51 @@ void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
 
 	node = src->begin();
 	for (uint_fast32_t i = 0; i < nodes; i++, node++) *node = buf[i];
+}
+
+void p2_sort::uniq_prefix_sort(void)
+{
+	for (auto node : *src)
+		index_name(
+			last_name_uniq_prefix,
+			node,
+			node->lastName.c_str()
+		);
+
+	Data **head, **tail, **cur;
+	uniq_prefix_trie *tmp;
+	auto node = src->begin();
+
+	for (unsigned i = 0; i < last_name_bucket_cnt; i++) {
+		tmp = last_name_buckets[i];
+		cur = head = tmp->bucket_head;
+		tail = tmp->bucket_tail;
+
+		while (cur != tail) {
+			index_name(
+				first_name_uniq_prefix,
+				*cur,
+				(*cur)->firstName.c_str()
+			);
+			++cur;
+		}
+
+		for (unsigned i = 0; i < first_name_bucket_cnt; i++) {
+			tmp = first_name_buckets[i];
+			head = tmp->bucket_head;
+			tail = tmp->bucket_tail;
+
+			sort(head, tail, ssn_cmp);
+
+			while (head != tail) {
+				*node = *head;
+				++head;
+				++node;
+			}
+		}
+
+		clear_buckets(first_name_buckets, first_name_bucket_cnt);
+	}
 }
 
 p2_sort::p2_sort(void)
