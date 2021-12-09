@@ -228,6 +228,17 @@ private:
 	 */
 	int ssncmp(const char *a, const char *b);
 
+	/*
+	 * Since we have determined the shortest possible unique prefix
+	 * for each name, we can use this as a means of determining if
+	 * two unsorted names are the same by comparing terminal nodes.
+	 */
+	void get_terminal_node(
+		uniq_prefix_trie *in,
+		uniq_prefix_trie **out,
+		const char *name
+	);
+
 	void std_sort(bool (*cmp) (const Data *a, const Data *b));
 	void insrt_sort_ssn(Data **first, Data **last);
 	void uniq_prefix_sort(void);
@@ -638,6 +649,18 @@ int p2_sort::ssncmp(const char *a, const char *b)
 		if (*a++ != *b++) return *--a - *--b;
 
 	return 0;
+}
+
+void p2_sort::get_terminal_node(
+	uniq_prefix_trie *in,
+	uniq_prefix_trie **out,
+	const char *name
+)
+{
+	for (unsigned i = 0; in->children; i++)
+		in = in->child[(unsigned) name[i]];
+
+	*out = in;
 }
 
 void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
