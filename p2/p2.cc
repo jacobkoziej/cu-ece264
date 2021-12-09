@@ -120,6 +120,7 @@ int main() {
 #define LAST_NAME_BUCKETS (MAX_ITEMS / LAST_NAMES)
 #define FIRST_NAMES 494
 #define FIRST_NAME_BUCKETS (MAX_ITEMS / FIRST_NAMES)
+#define DIGITS 10
 #define T1_LIMIT  200000
 
 
@@ -175,6 +176,9 @@ private:
 	uniq_prefix_trie *first_name_buckets[FIRST_NAMES];
 
 	Data **node_buf;
+	string *ssn_buf, *ssn_aux;
+	unsigned digit_cnt_offset[DIGITS];
+	unsigned *digit_cnt = digit_cnt_offset - '0';
 
 	/*
 	 * Since we know the input data, we can calculated the unique
@@ -264,7 +268,7 @@ public:
 	inline void t1_sort(void) { uniq_prefix_sort(); }
 	inline void t2_sort(void) { uniq_prefix_sort(); }
 	void t3_sort(void);
-	inline void t4_sort(void) { std_sort(ssn_cmp); }
+	void t4_sort(void);
 };
 
 const string p2_sort::last_names[LAST_NAMES] = {
@@ -748,6 +752,8 @@ void p2_sort::insrt_sort_ssn(Data **head, Data **tail)
 p2_sort::p2_sort(void)
 {
 	node_buf = new Data*[FIRST_NAMES];
+	ssn_buf = new string[MAX_ITEMS];
+	ssn_aux = new string[MAX_ITEMS];
 	last_name_prefix = new prefix_trie;
 	last_name_uniq_prefix = new uniq_prefix_trie;
 	first_name_prefix = new prefix_trie;
@@ -818,6 +824,88 @@ void p2_sort::t3_sort(void)
 		// don't forget to begin the next group of names
 		*(tail++) = *(lead++);
 	}
+}
+
+void p2_sort::t4_sort(void)
+{
+	auto node = src->begin();
+	string *buf, *aux, *tmp;
+
+	buf = ssn_buf;
+	aux = ssn_aux;
+
+	for (unsigned i = 0; i < nodes; i++, node++)
+		swap(buf[i], (*node)->ssn);
+
+	// UUU-UU-XXXX
+	for (int i = 10; i > 6; i--) {
+		memset(digit_cnt_offset, 0, sizeof(digit_cnt_offset));
+
+		for (unsigned j = 0; j < nodes; j++)
+			++digit_cnt[(unsigned) buf[j][i]];
+
+		// calculate prefix sum
+		for (unsigned j = 1; j < DIGITS; j++)
+			digit_cnt_offset[j] += digit_cnt_offset[j - 1];
+
+		for (int j = (signed) nodes - 1; j >= 0; j--)
+			swap(
+				aux[--digit_cnt[(unsigned) buf[j][i]]],
+				buf[j]
+			);
+
+		tmp = buf;
+		buf = aux;
+		aux = tmp;
+	}
+
+	// UUU-XX-SSSS
+	for (int i = 5; i > 3; i--) {
+		memset(digit_cnt_offset, 0, sizeof(digit_cnt_offset));
+
+		for (unsigned j = 0; j < nodes; j++)
+			++digit_cnt[(unsigned) buf[j][i]];
+
+		// calculate prefix sum
+		for (unsigned j = 1; j < DIGITS; j++)
+			digit_cnt_offset[j] += digit_cnt_offset[j - 1];
+
+		for (int j = (signed) nodes - 1; j >= 0; j--)
+			swap(
+				aux[--digit_cnt[(unsigned) buf[j][i]]],
+				buf[j]
+			);
+
+		tmp = buf;
+		buf = aux;
+		aux = tmp;
+	}
+
+	// XXX-SS-SSSS
+	for (int i = 2; i > -1; i--) {
+		memset(digit_cnt_offset, 0, sizeof(digit_cnt_offset));
+
+		for (unsigned j = 0; j < nodes; j++)
+			++digit_cnt[(unsigned) buf[j][i]];
+
+		// calculate prefix sum
+		for (unsigned j = 1; j < DIGITS; j++)
+			digit_cnt_offset[j] += digit_cnt_offset[j - 1];
+
+		for (int j = (signed) nodes - 1; j >= 0; j--)
+			swap(
+				aux[--digit_cnt[(unsigned) buf[j][i]]],
+				buf[j]
+			);
+
+		tmp = buf;
+		buf = aux;
+		aux = tmp;
+	}
+
+	node = src->begin();
+	for (unsigned i = 0; i < nodes; i++, node++)
+		swap((*node)->ssn, buf[i]);
 }
 
 p2_sort p2;
