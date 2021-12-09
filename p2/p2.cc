@@ -263,7 +263,7 @@ public:
 
 	inline void t1_sort(void) { uniq_prefix_sort(); }
 	inline void t2_sort(void) { uniq_prefix_sort(); }
-	inline void t3_sort(void) { std_sort(full_cmp); }
+	void t3_sort(void);
 	inline void t4_sort(void) { std_sort(ssn_cmp); }
 };
 
@@ -777,6 +777,47 @@ p2_sort::p2_sort(void)
 		first_name_bucket_cnt,
 		FIRST_NAME_BUCKETS
 	);
+}
+
+void p2_sort::t3_sort(void)
+{
+	auto lead  = src->begin();
+	auto trail = src->begin();
+	uniq_prefix_trie *pre, *cur;
+	Data **head, **tail, **trace;
+
+	head = tail = buf;
+
+	get_terminal_node(
+		first_name_uniq_prefix,
+		&pre,
+		(*lead)->firstName.c_str()
+	);
+	*(tail++) = *(lead++);
+
+	for (unsigned i = 1; i < nodes; i++) {
+		get_terminal_node(
+			first_name_uniq_prefix,
+			&cur,
+			(*lead)->firstName.c_str()
+		);
+
+		if (pre == cur) {
+			*(tail++) = *(lead++);
+			continue;
+		}
+
+		if (tail > head + 1) insrt_sort_ssn(head, tail);
+
+		trace = head;
+		while (trace != tail) *(trail++) = *(trace++);
+
+		pre = cur;
+		tail = head;
+
+		// don't forget to begin the next group of names
+		*(tail++) = *(lead++);
+	}
 }
 
 p2_sort p2;
