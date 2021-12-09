@@ -112,7 +112,6 @@ int main() {
 // class defintions here if you wish.
 
 #include <climits>
-#include <cstdint>
 
 
 #define MAX_ITEMS 1200000
@@ -121,7 +120,7 @@ int main() {
 #define FIRST_NAMES 494
 #define FIRST_NAME_BUCKETS (MAX_ITEMS / FIRST_NAMES)
 #define DIGITS 10
-#define T1_LIMIT  200000
+#define T1_LIMIT 200000
 
 
 class p2_sort {
@@ -210,9 +209,6 @@ private:
 		const unsigned bucket_siz
 	);
 
-	static inline bool full_cmp(const Data *a, const Data *b);
-	static inline bool ssn_cmp(const Data *a, const Data *b);
-
 	/*
 	 * We want to sort each name in its appropriate "bucket" using the
 	 * generated unique prefix trie.
@@ -243,12 +239,11 @@ private:
 		const char *name
 	);
 
-	void std_sort(bool (*cmp) (const Data *a, const Data *b));
 	void insrt_sort_ssn(Data **first, Data **last);
 	void uniq_prefix_sort(void);
 
 public:
-	uint_fast32_t nodes;
+	unsigned nodes;
 	list<Data *> *src;
 
 	/*
@@ -596,26 +591,12 @@ void p2_sort::alloc_buckets(
 	}
 }
 
-inline bool p2_sort::full_cmp(const Data *a, const Data *b)
-{
-	if (a->lastName != b->lastName) return a->lastName < b->lastName;
-	if (a->firstName != b->firstName) return a->firstName < b->firstName;
-	return a->ssn < b->ssn;
-}
-
-inline bool p2_sort::ssn_cmp(const Data *a, const Data *b)
-{
-	return a->ssn < b->ssn;
-}
-
 void p2_sort::index_name(uniq_prefix_trie *trie, Data *in, const char *name)
 {
-	auto *tmp  = trie;
+	for (unsigned i = 0; trie->children; i++)
+		trie = trie->child[(unsigned) name[i]];
 
-	for (unsigned i = 0; tmp->children; i++)
-		tmp = tmp->child[(unsigned) name[i]];
-
-	*(tmp->bucket_tail++) = in;
+	*(trie->bucket_tail++) = in;
 }
 
 void p2_sort::clear_buckets(uniq_prefix_trie **buckets, unsigned bucket_cnt)
@@ -665,18 +646,6 @@ void p2_sort::get_terminal_node(
 		in = in->child[(unsigned) name[i]];
 
 	*out = in;
-}
-
-void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
-{
-	auto node = src->begin();
-
-	for (uint_fast32_t i = 0; i < nodes; i++, node++) node_buf[i] = *node;
-
-	sort(node_buf, node_buf + nodes, cmp);
-
-	node = src->begin();
-	for (uint_fast32_t i = 0; i < nodes; i++, node++) *node = node_buf[i];
 }
 
 void p2_sort::uniq_prefix_sort(void)
