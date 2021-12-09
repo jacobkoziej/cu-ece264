@@ -174,7 +174,7 @@ private:
 	unsigned first_name_bucket_cnt = 0;
 	uniq_prefix_trie *first_name_buckets[FIRST_NAMES];
 
-	Data **buf;
+	Data **node_buf;
 
 	/*
 	 * Since we know the input data, we can calculated the unique
@@ -667,12 +667,12 @@ void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
 {
 	auto node = src->begin();
 
-	for (uint_fast32_t i = 0; i < nodes; i++, node++) buf[i] = *node;
+	for (uint_fast32_t i = 0; i < nodes; i++, node++) node_buf[i] = *node;
 
-	sort(buf, buf + nodes, cmp);
+	sort(node_buf, node_buf + nodes, cmp);
 
 	node = src->begin();
-	for (uint_fast32_t i = 0; i < nodes; i++, node++) *node = buf[i];
+	for (uint_fast32_t i = 0; i < nodes; i++, node++) *node = node_buf[i];
 }
 
 void p2_sort::uniq_prefix_sort(void)
@@ -747,7 +747,7 @@ void p2_sort::insrt_sort_ssn(Data **head, Data **tail)
 
 p2_sort::p2_sort(void)
 {
-	buf = new Data*[MAX_ITEMS];
+	node_buf = new Data*[FIRST_NAMES];
 	last_name_prefix = new prefix_trie;
 	last_name_uniq_prefix = new uniq_prefix_trie;
 	first_name_prefix = new prefix_trie;
@@ -786,7 +786,7 @@ void p2_sort::t3_sort(void)
 	uniq_prefix_trie *pre, *cur;
 	Data **head, **tail, **trace;
 
-	head = tail = buf;
+	head = tail = node_buf;
 
 	get_terminal_node(
 		first_name_uniq_prefix,
