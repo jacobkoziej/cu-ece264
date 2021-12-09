@@ -229,6 +229,7 @@ private:
 	int ssncmp(const char *a, const char *b);
 
 	void std_sort(bool (*cmp) (const Data *a, const Data *b));
+	void insrt_sort_ssn(Data **first, Data **last);
 	void uniq_prefix_sort(void);
 
 public:
@@ -683,7 +684,7 @@ void p2_sort::uniq_prefix_sort(void)
 			head = tmp->bucket_head;
 			tail = tmp->bucket_tail;
 
-			sort(head, tail, ssn_cmp);
+			if (head != tail) insrt_sort_ssn(head, tail);
 
 			while (head != tail) {
 				*node = *head;
@@ -693,6 +694,31 @@ void p2_sort::uniq_prefix_sort(void)
 		}
 
 		clear_buckets(first_name_buckets, first_name_bucket_cnt);
+	}
+}
+
+void p2_sort::insrt_sort_ssn(Data **head, Data **tail)
+{
+	Data **i = head + 1;
+	Data **j = head;
+	Data **cur;
+	Data *tmp;
+
+	while (i != tail) {
+		cur = i;
+
+		while (
+			i > head &&
+			ssncmp((*i)->ssn.c_str(), (*j)->ssn.c_str()) < 0
+		) {
+			tmp = *i;
+			*i = *j;
+			*j = tmp;
+			--i; --j;
+		}
+
+		i = ++cur;
+		j = i - 1;
 	}
 }
 
