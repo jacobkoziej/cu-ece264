@@ -221,6 +221,13 @@ private:
 	 */
 	void clear_buckets(uniq_prefix_trie **buckets, unsigned bucket_cnt);
 
+	/*
+	 * Since each SSN has the same properties (dashes and same
+	 * length), we can ignore these characters and the NUL byte to
+	 * speed up our comparator.
+	 */
+	int ssncmp(const char *a, const char *b);
+
 	void std_sort(bool (*cmp) (const Data *a, const Data *b));
 	void uniq_prefix_sort(void);
 
@@ -607,6 +614,29 @@ void p2_sort::clear_buckets(uniq_prefix_trie **buckets, unsigned bucket_cnt)
 		tmp->bucket_tail = tmp->bucket_head;
 		*tmp->bucket_head = nullptr;
 	}
+}
+
+int p2_sort::ssncmp(const char *a, const char *b)
+{
+	// XXX-UU-UUUU
+	for (int i = 0; i < 3; i++)
+		if (*a++ != *b++) return *--a - *--b;
+
+	++a;
+	++b;
+
+	// SSS-XX-UUUU
+	for (int i = 0; i < 2; i++)
+		if (*a++ != *b++) return *--a - *--b;
+
+	++a;
+	++b;
+
+	// SSS-SS-XXXX
+	for (int i = 0; i < 4; i++)
+		if (*a++ != *b++) return *--a - *--b;
+
+	return 0;
 }
 
 void p2_sort::std_sort(bool (*cmp) (const Data *a, const Data *b))
