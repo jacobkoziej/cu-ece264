@@ -814,6 +814,10 @@ void p2_sort::t3_sort(void)
 		// don't forget to begin the next group of names
 		*(tail++) = *(lead++);
 	}
+
+	// don't forget about the last group of names
+	if (tail > head + 1) insrt_sort_ssn(head, tail);
+	while (head != tail) *(trail++) = *(head++);
 }
 
 void p2_sort::t4_sort(void)
