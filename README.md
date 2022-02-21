@@ -1,5 +1,7 @@
 # cu-ece264
 
+> The Cooper Union - ECE 264: Data Structures and Algorithms I
+
 
 ## Copyright & Licensing
 
